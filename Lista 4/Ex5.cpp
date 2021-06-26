@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 int main(void) {
   
@@ -15,11 +16,28 @@ int main(void) {
   printf("\nDigite o N:");
   scanf("%d", &n);
 
+
   for(int i=0; i < strlen(palavra); i++){
-    novapalavra[i] = palavra[i] + n;
+    palavra[i]= tolower(palavra[i]);
+    char aux = palavra[i] + n;
+   
+    if(aux >= 'a' && aux <= 'z'){
+         novapalavra[i] = aux;
+    
+    }else{
+      aux = palavra[i];
+
+      for(int j = 1; j <= n; j++){
+        aux++;
+        if((aux < 'a' || aux > 'z')){
+          aux= 'a';
+        }
+      }
+      novapalavra[i] = aux;
+    }
   }
 
-  system("clear");
+  // system("clear");
   printf("\n\n######Sistema de Codificacao\n");
 
   printf("\nN: %d", n);
