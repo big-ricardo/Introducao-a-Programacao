@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define NUMERO 3
+#define NUMERO 8
 
 int main(void) {
   
