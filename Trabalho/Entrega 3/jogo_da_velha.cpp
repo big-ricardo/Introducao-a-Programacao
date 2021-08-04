@@ -36,7 +36,7 @@ int main(void) {
 
     printf("\n------ Jogo da Velha em C ------\n\n");
     printf("1. Jogar \n");
-    printf("2. Placar \n");
+    printf("2. Ranking \n");
     printf("3. Sair\n");
 
     printf("\nEscolha uma opção:");
@@ -69,7 +69,7 @@ int jogoInit(){
   
   int calculaPontuacao(struct Placar);
 
-  int tabuleiro[3][3];  //Varivael responsavel pelo tabuleiro
+  int tabuleiro[3][3];  //Variavel responsavel pelo tabuleiro
   int valor; //Pegar valor digitado no menu do usuario 
   struct Jogador jogador;
   struct Placar placar;
@@ -208,13 +208,14 @@ void rodadaInit(int tabuleiro[3][3], int jogador, struct Placar *placar){
 //Inicia a Visualização do Ranking, fazendo a leitura do arquivo e apresentando ao usuario
 int rankingInit(){
   
-  void ordenarVetor(char n[][20], int p[POSICOES_PLACAR], int);
-  int mostrarUsuarioRanking(char *, int);
+  void ordenarVetor(struct Jogador *jogadores, int);
+  int mostrarUsuarioRanking(struct Jogador);
 
   int sair;
+  struct Jogador jogadores[POSICOES_PLACAR]; //Array de jogadores do Placar
+
+  //variaveis auxiliares
   char nome[20];
-  char nomes[POSICOES_PLACAR][20];
-  int pontuacoes[POSICOES_PLACAR];
   int pontuacao;
   int ranking_total = 0;
 
@@ -235,8 +236,9 @@ int rankingInit(){
     //enquanto não for fim de arquivo o looping será executado
     //e será impresso o texto
     while(fscanf(arquivo, "%s %d", nome, &pontuacao)!=EOF){
-      strcpy(nomes[ranking_total], nome);
-      pontuacoes[ranking_total] = pontuacao;
+      // strcpy(nomes[ranking_total], nome);
+      strcpy(jogadores[ranking_total].nome, nome);
+      jogadores[ranking_total].pontuacao = pontuacao;
       ranking_total++;
     }
     //fecha o arquivo
@@ -244,9 +246,10 @@ int rankingInit(){
 
     // testa existem pessoas no ranking e ordena para apresenta-lo
     if(ranking_total>0){
-      ordenarVetor(nomes, pontuacoes, ranking_total);
-      for(int i=0; i < ranking_total; i++){
-        mostrarUsuarioRanking(nomes[i], pontuacoes[i]);
+      ordenarVetor(jogadores, ranking_total);
+      for(int i=0; i < ranking_total + 1; i++){
+        //Fazer a apresentação no terminal
+        mostrarUsuarioRanking(jogadores[i]);
       }
     }
   }
@@ -258,21 +261,17 @@ int rankingInit(){
   return 0;
 }
 
-//Recebe os vetores do ranking e ordena em ordem descrescente
-void ordenarVetor(char nomes[][20], int pontuacoes[POSICOES_PLACAR], int ranking_total){
+//Fazer a ordenação dos ranking
+void ordenarVetor(struct Jogador jogadores[POSICOES_PLACAR], int ranking_total){
   int status;
   do{
     status = 0;
     for(int i=ranking_total; i>0; i--){
-      if(pontuacoes[i]> pontuacoes[i-1]){
-        int pAux;
-        char nAux[20];
-        pAux = pontuacoes[i];
-        strcpy(nAux, nomes[i]);
-        pontuacoes[i] = pontuacoes[i-1];
-        strcpy(nomes[i], nomes[i-1]);
-        pontuacoes[i-1] = pAux;
-        strcpy(nomes[i-1], nAux);
+      if(jogadores[i].pontuacao> jogadores[i-1].pontuacao){
+        struct Jogador aux;
+        aux = jogadores[i];
+        jogadores[i] = jogadores[i-1];
+        jogadores[i-1] = aux;
         status = 1;
       }
     }
@@ -302,16 +301,17 @@ void mostrarUsuario(struct Jogador *jogador){
 }
 
 //Apresenta os dados do usuario
-int mostrarUsuarioRanking(char nome[20], int pontuacao){
+int mostrarUsuarioRanking(struct Jogador jogador){
   
-  for(int i = 0; i < strlen(nome); i++){
-    if(nome[i] < 'a' && nome[i] > 'z' && nome[i] < 'A' && nome[i] > 'Z'){
+  for(int i = 0; i < strlen(jogador.nome); i++){
+    if((jogador.nome[i] < 'a' && jogador.nome[i] > 'z') || (jogador.nome[i] < 'A' && jogador.nome[i] > 'Z') ||  
+    (jogador.pontuacao > 10000) || (jogador.pontuacao < 0)){
       return 0;
     }
   }
 
-  printf("\n\n%s \t", nome);
-  printf("%d\n", pontuacao);
+  printf("\n\n%s \t", jogador.nome);
+  printf("%d\n", jogador.pontuacao);
   printf("-----------------------------");
 
   return 1;
@@ -345,7 +345,7 @@ void rodadaJogador(int tabuleiro[3][3], int jogador){
   
   int linha, coluna;
 
-  //Loop o usuario definiar uma jogada correta
+  //Loop o usuario definir uma jogada correta
   do{
 
     printf("\nInsira a Linha que deseja jogar:");
